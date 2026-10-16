@@ -6,6 +6,7 @@ export const site = {
   // Add the supplied original logo to public/media and set its path here.
   logo: null as string | null,
   backgroundVideo: '/media/garso-background.mp4',
+  backgroundVideoWebm: '/media/garso-background.webm',
   backgroundPoster: '/media/garso-poster.jpg',
 };
 

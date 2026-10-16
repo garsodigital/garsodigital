@@ -35,7 +35,7 @@ No ambiente em nuvem, o Chromium já está disponível no sistema:
 PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH=/usr/bin/chromium npm test
 ```
 
-Os testes verificam mensagens e número de todos os links de WhatsApp, abertura de uma nova aba com destino interceptado (sem enviar mensagens), menu mobile, Escape, navegação interna, ausência de rolagem horizontal, reprodução e pausa do vídeo, poster e movimento reduzido. A emulação mobile usa Chromium; não substitui uma validação em aparelhos iOS e Android reais.
+Os testes verificam mensagens e número de todos os links de WhatsApp, abertura de uma nova aba com destino interceptado (sem enviar mensagens), menu mobile, Escape, navegação interna e ausência de rolagem horizontal. Para o fundo, verificam reprodução, mudanças nos pixels durante a rolagem, loop, pausa, poster, retomada após bloqueio de autoplay, alternativa MP4 e ativação manual com movimento reduzido. A emulação mobile usa Chromium; não substitui uma validação em aparelhos iOS e Android reais.
 
 ## Atualizar informações
 
@@ -47,14 +47,15 @@ Os testes verificam mensagens e número de todos os links de WhatsApp, abertura 
 
 ## Materiais oficiais pendentes
 
-O vídeo enviado pelo usuário foi preparado em `public/media/garso-background.mp4`: H.264, 1280 × 720, 24 fps, 8 segundos, sem faixa de áudio e com faststart. O poster é um quadro extraído do próprio vídeo. O original foi preservado nos anexos do ambiente, fora do site.
+O vídeo enviado pelo usuário foi preparado em dois formatos: `public/media/garso-background.webm` (VP9, cerca de 527 KB) e `public/media/garso-background.mp4` (H.264, cerca de 954 KB, com faststart). Ambos têm 1280 × 720, 24 fps, 8 segundos e nenhuma faixa de áudio. O navegador escolhe um formato compatível. O poster é um quadro extraído do próprio vídeo. O original foi preservado nos anexos do ambiente, fora do site.
 
-O fundo é fixo, compartilhado por todas as seções e recortado pelo conteúdo principal. O rodapé tem fundo sólido e efeito de revelação no desktop. No celular, o rodapé permanece no fluxo normal para evitar problemas com altura e navegação. O vídeo pausa em aba oculta, pode ser pausado pelo visitante e é substituído pelo poster se o navegador recusar reprodução. Com `prefers-reduced-motion: reduce`, nenhum vídeo é carregado e as animações são desativadas.
+O fundo é fixo, compartilhado por todas as seções e recortado pelo conteúdo principal. O rodapé tem fundo sólido e efeito de revelação no desktop. No celular, o rodapé permanece no fluxo normal para evitar problemas com altura e navegação. O vídeo pausa em aba oculta e pode ser pausado pelo visitante. Se o navegador bloquear o autoplay, o vídeo permanece disponível com poster, e a reprodução é tentada novamente após uma interação. O botão “Reproduzir fundo”, no canto inferior esquerdo, permite iniciar ou tentar novamente sem ser encoberto pelo selo da Netlify. Com `prefers-reduced-motion: reduce`, o vídeo só é carregado se o visitante optar explicitamente por reproduzi-lo; as animações de interface continuam desativadas.
 
 Ainda é necessário fornecer:
 
 1. **Logo original**: colocar o arquivo em `public/media/` e definir `site.logo`. Até lá, o nome da agência aparece em texto, sem criar um símbolo substituto.
 2. **Portfólio aprovado**: adicionar miniaturas em `public/media/` e entradas em `projects`. Não foram inventados clientes ou resultados. A seção exibe uma mensagem de portfólio em preparação.
+
 Uma referência visual de página foi fornecida posteriormente e orientou os tons de azul, bordas dos cards, ícones e botões arredondados. O hero centralizado e os textos seguem o briefing escrito. A captura de referência não foi usada como imagem estática do site nem como substituto do arquivo original do logotipo.
 
 Exemplo de entrada de portfólio, substituindo os campos pelos dados reais antes de publicar:
