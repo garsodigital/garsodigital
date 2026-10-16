@@ -120,21 +120,23 @@ test('background video plays automatically without playback controls and has a s
   expect(poster.headers()['content-type']).toContain('image/jpeg');
 });
 
-test('reduced motion skips video download and keeps all content accessible', async ({ page }) => {
+test('background stays animated with reduced motion while content animations are disabled', async ({ page }) => {
   await page.emulateMedia({ reducedMotion: 'reduce' });
-  const mediaRequests: string[] = [];
-  page.on('request', request => { if (/\.(mp4|webm)$/.test(request.url())) mediaRequests.push(request.url()); });
   await page.goto('/');
-  await expect(page.locator('video source')).toHaveCount(0);
-  await expect(page.locator('video')).toHaveAttribute('preload', 'none');
+  expect(await page.evaluate(() => window.matchMedia('(prefers-reduced-motion: reduce)').matches)).toBe(true);
+  const video = page.locator('video');
+  await expect(video.locator('source')).toHaveCount(2);
+  await expect(video).toHaveAttribute('autoplay', '');
+  await expect(video).toHaveAttribute('preload', 'auto');
+  await expect.poll(() => video.evaluate((element: HTMLVideoElement) => element.currentTime)).toBeGreaterThan(0);
+  await expect(page.getByRole('button', { name: /Reproduzir fundo|Pausar fundo/ })).toHaveCount(0);
   await expect(page.locator('.reveal-pending')).toHaveCount(0);
+  expect(await page.locator('.hero-content').evaluate(element => getComputedStyle(element).animationName)).toBe('none');
   for (const heading of await page.locator('h2').all()) await expect(heading).toBeVisible();
-  expect(mediaRequests).toEqual([]);
-  await page.getByRole('heading', { level: 1 }).click();
-  await expect(page.locator('video source')).toHaveCount(0);
-  expect(mediaRequests).toEqual([]);
+  const frames = await video.evaluate((element: HTMLVideoElement) => element.getVideoPlaybackQuality().totalVideoFrames);
   await page.emulateMedia({ reducedMotion: 'no-preference' });
-  await expect.poll(() => page.locator('video').evaluate((element: HTMLVideoElement) => element.currentTime)).toBeGreaterThan(0);
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await expect.poll(() => video.evaluate((element: HTMLVideoElement) => element.getVideoPlaybackQuality().totalVideoFrames)).toBeGreaterThan(frames + 3);
 });
 
 test('an ordinary click resumes blocked autoplay without a play button', async ({ page }) => {
