@@ -35,7 +35,7 @@ No ambiente em nuvem, o Chromium já está disponível no sistema:
 PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH=/usr/bin/chromium npm test
 ```
 
-Os testes verificam mensagens e número de todos os links de WhatsApp, abertura de uma nova aba com destino interceptado (sem enviar mensagens), menu mobile, Escape, navegação interna e ausência de rolagem horizontal. Para o fundo, verificam reprodução, mudanças nos pixels durante a rolagem, loop, pausa, poster, retomada após bloqueio de autoplay, alternativa MP4 e ativação manual com movimento reduzido. A emulação mobile usa Chromium; não substitui uma validação em aparelhos iOS e Android reais.
+Os testes verificam mensagens e número de todos os links de WhatsApp, abertura de uma nova aba com destino interceptado (sem enviar mensagens), menu mobile, Escape, navegação interna e ausência de rolagem horizontal. Para o fundo, verificam reprodução automática sem controles, mudanças nos pixels durante a rolagem, loop, poster, retomada após bloqueio de autoplay por clique ou teclado, alternativa MP4 e movimento reduzido. A emulação mobile usa Chromium; não substitui uma validação em aparelhos iOS e Android reais.
 
 ## Atualizar informações
 
@@ -49,7 +49,7 @@ Os testes verificam mensagens e número de todos os links de WhatsApp, abertura 
 
 O vídeo enviado pelo usuário foi preparado em dois formatos: `public/media/garso-background.webm` (VP9, cerca de 527 KB) e `public/media/garso-background.mp4` (H.264, cerca de 954 KB, com faststart). Ambos têm 1280 × 720, 24 fps, 8 segundos e nenhuma faixa de áudio. O navegador escolhe um formato compatível. O poster é um quadro extraído do próprio vídeo. O original foi preservado nos anexos do ambiente, fora do site.
 
-O fundo é fixo, compartilhado por todas as seções e recortado pelo conteúdo principal. O rodapé tem fundo sólido e efeito de revelação no desktop. No celular, o rodapé permanece no fluxo normal para evitar problemas com altura e navegação. O vídeo pausa em aba oculta e pode ser pausado pelo visitante. Se o navegador bloquear o autoplay, o vídeo permanece disponível com poster, e a reprodução é tentada novamente após uma interação. O botão “Reproduzir fundo”, no canto inferior esquerdo, permite iniciar ou tentar novamente sem ser encoberto pelo selo da Netlify. Com `prefers-reduced-motion: reduce`, o vídeo só é carregado se o visitante optar explicitamente por reproduzi-lo; as animações de interface continuam desativadas.
+O fundo é fixo, compartilhado por todas as seções e recortado pelo conteúdo principal. O rodapé tem fundo sólido e efeito de revelação no desktop. No celular, o rodapé permanece no fluxo normal para evitar problemas com altura e navegação. O vídeo inicia automaticamente, sem áudio, em loop e sem botões ou controles de reprodução. Ele pausa em aba oculta e retoma ao retornar. Se o navegador bloquear o autoplay, o vídeo permanece disponível com poster, e a reprodução é tentada novamente após um clique ou interação pelo teclado. Com `prefers-reduced-motion: reduce`, o poster substitui o vídeo e as animações de interface são desativadas.
 
 Ainda é necessário fornecer:
 

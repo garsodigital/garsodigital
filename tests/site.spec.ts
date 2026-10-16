@@ -91,12 +91,14 @@ test('navigation, responsive layout and footer work without browser errors', asy
   expect(errors).toEqual([]);
 });
 
-test('video plays, pauses and has an available static poster', async ({ page, request }) => {
+test('background video plays automatically without playback controls and has a static poster', async ({ page, request }) => {
   await page.goto('/');
   const video = page.locator('video');
   await expect(video).toHaveAttribute('autoplay', '');
   await expect(video).toHaveAttribute('loop', '');
   await expect(video).toHaveAttribute('playsinline', '');
+  await expect(page.getByRole('button', { name: /Reproduzir fundo|Pausar fundo/ })).toHaveCount(0);
+  expect(await video.evaluate((element: HTMLVideoElement) => element.controls)).toBe(false);
   await expect.poll(() => video.evaluate((element: HTMLVideoElement) => element.readyState)).toBeGreaterThanOrEqual(2);
   expect(await video.evaluate((element: HTMLVideoElement) => element.muted)).toBe(true);
   expect(await video.evaluate((element: HTMLVideoElement) => element.defaultMuted)).toBe(true);
@@ -112,9 +114,6 @@ test('video plays, pauses and has an available static poster', async ({ page, re
   expect((await page.screenshot({ clip })).equals(firstFrame)).toBe(false);
   await video.evaluate((element: HTMLVideoElement) => { element.currentTime = element.duration - 0.15; });
   await expect.poll(() => video.evaluate((element: HTMLVideoElement) => element.currentTime)).toBeLessThan(1);
-  await page.getByRole('button', { name: 'Pausar fundo animado' }).click();
-  expect(await video.evaluate((element: HTMLVideoElement) => element.paused)).toBe(true);
-  await page.getByRole('button', { name: 'Reproduzir fundo animado' }).click();
   await expect.poll(() => video.evaluate((element: HTMLVideoElement) => element.paused)).toBe(false);
   const poster = await request.get('/media/garso-poster.jpg');
   expect(poster.ok()).toBe(true);
@@ -131,12 +130,14 @@ test('reduced motion skips video download and keeps all content accessible', asy
   await expect(page.locator('.reveal-pending')).toHaveCount(0);
   for (const heading of await page.locator('h2').all()) await expect(heading).toBeVisible();
   expect(mediaRequests).toEqual([]);
-  await page.getByRole('button', { name: 'Reproduzir fundo animado' }).click();
+  await page.getByRole('heading', { level: 1 }).click();
+  await expect(page.locator('video source')).toHaveCount(0);
+  expect(mediaRequests).toEqual([]);
+  await page.emulateMedia({ reducedMotion: 'no-preference' });
   await expect.poll(() => page.locator('video').evaluate((element: HTMLVideoElement) => element.currentTime)).toBeGreaterThan(0);
-  await expect(page.getByRole('button', { name: 'Pausar fundo animado' })).toBeVisible();
 });
 
-test('autoplay denial keeps the video available and a click starts it', async ({ page }) => {
+test('an ordinary click resumes blocked autoplay without a play button', async ({ page }) => {
   await page.addInitScript(() => {
     const originalPlay = HTMLMediaElement.prototype.play;
     let userInteracted = false;
@@ -152,17 +153,17 @@ test('autoplay denial keeps the video available and a click starts it', async ({
   });
   await page.goto('/');
   await expect(page.locator('video')).toHaveCount(1);
-  await expect(page.getByRole('button', { name: 'Reproduzir fundo animado' })).toBeVisible();
-  await page.getByRole('button', { name: 'Reproduzir fundo animado' }).click();
+  await expect.poll(() => page.locator('video').evaluate((element: HTMLVideoElement) => element.readyState)).toBeGreaterThanOrEqual(2);
+  await expect(page.getByRole('button', { name: /Reproduzir fundo|Pausar fundo/ })).toHaveCount(0);
+  await page.getByRole('heading', { level: 1 }).click();
   await expect.poll(() => page.locator('video').evaluate((element: HTMLVideoElement) => element.currentTime)).toBeGreaterThan(0);
-  await expect(page.getByRole('button', { name: 'Pausar fundo animado' })).toBeVisible();
 });
 
-test('an ordinary page interaction retries blocked autoplay', async ({ page }) => {
+test('keyboard navigation resumes blocked autoplay without a play button', async ({ page }) => {
   await page.addInitScript(() => {
     const originalPlay = HTMLMediaElement.prototype.play;
     let userInteracted = false;
-    window.addEventListener('pointerdown', () => { userInteracted = true; }, { capture: true });
+    window.addEventListener('keydown', () => { userInteracted = true; }, { capture: true });
     HTMLMediaElement.prototype.play = function () {
       if (!userInteracted) {
         this.autoplay = false;
@@ -173,8 +174,9 @@ test('an ordinary page interaction retries blocked autoplay', async ({ page }) =
     };
   });
   await page.goto('/');
-  await expect(page.getByRole('button', { name: 'Reproduzir fundo animado' })).toBeVisible();
-  await page.getByRole('heading', { level: 1 }).click();
+  await expect.poll(() => page.locator('video').evaluate((element: HTMLVideoElement) => element.readyState)).toBeGreaterThanOrEqual(2);
+  await expect(page.getByRole('button', { name: /Reproduzir fundo|Pausar fundo/ })).toHaveCount(0);
+  await page.keyboard.press('Tab');
   await expect.poll(() => page.locator('video').evaluate((element: HTMLVideoElement) => element.currentTime)).toBeGreaterThan(0);
 });
 
